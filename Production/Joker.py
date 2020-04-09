@@ -43,7 +43,7 @@ class Joker():
         return sentence
 
 if __name__ == "__main__":
-    joker = Joker(modelname="JOKE_1", mappingname="JOKE_1")
+    joker = Joker(modelname="JOKE_3", mappingname="JOKE_1")
     while True:
         start = input("> ")
         print(f"Joker says:\n {joker.getFullJoke(start)}")
