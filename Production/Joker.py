@@ -1,6 +1,6 @@
 import json
 import logging
-
+from pprint import pprint
 import numpy as np
 from tensorflow.keras.models import load_model
 
@@ -42,9 +42,35 @@ class Joker():
             if len(sentence.split())+1 >= self.sentence_size: break
         return sentence
 
+    def getCandidates(self, sentence, ncandidates=5):
+        nw = len(sentence.split()) #from 0 to nw-1
+        x1 = self.getData(sentence)
+        preds = self.model.predict( np.array([x1]) )[0] #get predictions for the nwth word
+        preds = preds[nw-1] # take next word index from the current word
+        wp = list(zip(self.id2word, preds))
+        wp.sort(key=lambda x: x[1], reverse=True)
+        return wp[:5]
+
+    def getInteractiveJoke(self, sentence):
+        while True:
+            print(f"----------------------------\nWe got: \"{sentence}\"")
+            candidates = self.getCandidates(sentence)
+            print("These are the candidates:")
+            for i, candidate in enumerate(candidates):
+                print(f"{i}: {candidate[0]} -> {candidate[1]}")
+            opt = input("Choose one: ")
+            while int(opt) not in range(len(candidates)): opt = input("Wrong! Choose one: ")
+            word = candidates[int(opt)][0]
+            if word == "<endtoken>": break
+            if len(sentence.split())+1 >= self.sentence_size: break    
+            sentence += ' ' + word
+
+
+
 if __name__ == "__main__":
-    joker = Joker(modelname="JOKE_3", mappingname="JOKE_1")
+    joker = Joker(modelname="JOKE_5", mappingname="JOKE_5")
     while True:
         start = input("> ")
-        print(f"Joker says:\n {joker.getFullJoke(start)}")
+        joker.getInteractiveJoke(start)
+        # print(f"Joker says:\n {joker.getFullJoke(start)}")
 
