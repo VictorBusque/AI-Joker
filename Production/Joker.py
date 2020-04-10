@@ -42,25 +42,33 @@ class Joker():
             if len(sentence.split())+1 >= self.sentence_size: break
         return sentence
 
-    def getCandidates(self, sentence, ncandidates=5):
+    def getCandidates(self, sentence, ncandidates=5, simTh = 0.7):
         nw = len(sentence.split()) #from 0 to nw-1
         x1 = self.getData(sentence)
         preds = self.model.predict( np.array([x1]) )[0] #get predictions for the nwth word
         preds = preds[nw-1] # take next word index from the current word
         wp = list(zip(self.id2word, preds))
-        wp.sort(key=lambda x: x[1], reverse=True)
-        return wp[:5]
+        wp.sort(key=lambda x: x[1] if x[0] not in ["<unk>", "<pad>"] else 0, reverse=True)
+        candidates = [(wp[0])]
+        refprob = wp[0][1]
+        for candidate in wp[1:ncandidates]:
+            if candidate[0] in ["<unk>", "<pad>"]: continue
+            if candidate[1] >= refprob*simTh: candidates.append(candidate)
+        return candidates
 
     def getInteractiveJoke(self, sentence):
         while True:
             print(f"----------------------------\nWe got: \"{sentence}\"")
             candidates = self.getCandidates(sentence)
-            print("These are the candidates:")
-            for i, candidate in enumerate(candidates):
-                print(f"{i}: {candidate[0]} -> {candidate[1]}")
-            opt = input("Choose one: ")
-            while int(opt) not in range(len(candidates)): opt = input("Wrong! Choose one: ")
-            word = candidates[int(opt)][0]
+            if len(candidates) == 1:
+                word = candidates[0][0]
+            else:
+                print("These are the candidates:")
+                for i, candidate in enumerate(candidates):
+                    print(f"{i}: {candidate[0]} -> {candidate[1]}")
+                opt = input("Choose one: ")
+                while int(opt) not in range(len(candidates)): opt = input("Wrong! Choose one: ")
+                word = candidates[int(opt)][0]
             if word == "<endtoken>": break
             if len(sentence.split())+1 >= self.sentence_size: break    
             sentence += ' ' + word
