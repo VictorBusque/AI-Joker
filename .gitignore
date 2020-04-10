@@ -12,6 +12,7 @@ build/
 develop-eggs/
 dist/
 downloads/
+logs
 eggs/
 .eggs/
 lib/
@@ -125,3 +126,4 @@ dmypy.json
 .pyre/
 Data/glove.6B.100d.txt
 Research/Data/glove.6B.100d.txt
+Research/Models/glove.6B.100d.txt
