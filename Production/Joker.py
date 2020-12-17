@@ -54,7 +54,8 @@ class Joker():
         for candidate in wp[1:ncandidates]:
             if candidate[0] in ["<unk>", "<pad>"]: continue
             if candidate[1] >= refprob*simTh: candidates.append(candidate)
-        return candidates
+        result = {word: float(prob) for word,prob in candidates}
+        return result
 
     def getInteractiveJoke(self, sentence):
         while True:
@@ -62,10 +63,13 @@ class Joker():
             candidates = self.getCandidates(sentence)
             if len(candidates) == 1:
                 word = candidates[0][0]
+                options = self.getCandidates(sentence, simTh=0)
+                for i, option in enumerate(options):
+                    print(f"{i}: {option[0]} -> { round(option[1]*100, 2) }%")
             else:
                 print("These are the candidates:")
                 for i, candidate in enumerate(candidates):
-                    print(f"{i}: {candidate[0]} -> {candidate[1]}")
+                    print(f"{i}: {candidate[0]} -> { round(candidate[1]*100, 2) }%")
                 opt = input("Choose one: ")
                 while int(opt) not in range(len(candidates)): opt = input("Wrong! Choose one: ")
                 word = candidates[int(opt)][0]
