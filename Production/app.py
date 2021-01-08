@@ -3,10 +3,12 @@ import os
 
 from flask import Flask, request
 from flask_restful import Api, Resource
+from flask_cors import CORS
 
 from Joker import Joker
 
 app = Flask(__name__)
+cors = CORS(app)
 api = Api(app)
 
 joker = Joker(modelname="JOKE_5", mappingname="JOKE_5")
